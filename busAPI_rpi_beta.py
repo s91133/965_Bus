@@ -80,7 +80,7 @@ if __name__ == '__main__' :
                 timechk = 0
                 print("System Sleep")
                 ft1 = open( "./965_businfo.html", "w")
-                ft1.write("System Sleep \n\n")
+                ft1.write("System Sleep")
                 ft1.close()
                 var1 = 1
                 var2 = 0
