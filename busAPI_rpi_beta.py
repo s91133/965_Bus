@@ -248,7 +248,7 @@ if __name__ == '__main__' :
                     fp.close()
 
             if error_val == 0 and write_check == 1 :
-                path = "./businfo_rec/"  + datetime.now().strftime("%Y%m%d")
+                path = "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
                 if not os.path.isdir(path) :
                     os.mkdir(path)
                 try :
@@ -265,11 +265,15 @@ if __name__ == '__main__' :
                     
             if error_val == 0 and write_check == 1 :
                 try :
+                    var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
                     for item in datalist :
+                        if var3 != 0 :
+                            fp.write('\n')
+                            ft.write('<br>')
                         if 'PlateNumb' in datalist[item] :
-                            fp.write('\n車號: ' + datalist[item]['PlateNumb'] + "\n")
-                            ft.write('<br>' + '車號: ' + datalist[item]['PlateNumb'] + '<br>')
+                            fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
+                            ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
                         if 'Direction' in datalist[item] :
                             fp.write('開往: ' + datalist[item]['Direction'] + "\n")
                             ft.write('開往: ' + datalist[item]['Direction'] + '<br>')
@@ -288,6 +292,7 @@ if __name__ == '__main__' :
                         if 'Speed' in datalist[item] :
                             fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
                             ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+                        var3 = 1
                 except Exception as e :
                     error_val = 1
                     write_check = 0
@@ -299,7 +304,7 @@ if __name__ == '__main__' :
             if error_val == 0 and write_check == 1 :
                 try:
                     var2 = 0
-                    fp.write("\n資料最後更新時間 : %s \n" % time.ctime())
+                    fp.write("\n資料最後更新時間 : %s \n\n" % time.ctime())
                     ft.write("<br>" + "資料最後更新時間 : %s <br>" % time.ctime())
                     fp.close()
                     ft.close()
