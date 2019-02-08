@@ -80,7 +80,7 @@ if __name__ == '__main__' :
                 timechk = 0
                 print("System Sleep")
                 ft1 = open( "./965_businfo.html", "w")
-                ft1.write("System Sleep")
+                ft1.write("Non-working hours")
                 ft1.close()
                 var1 = 1
                 var2 = 0
@@ -323,7 +323,7 @@ if __name__ == '__main__' :
         else :
             try :
                 ft5 = open( "./965_businfo.html", "a")
-                ft5.write("In System Protect Mode! <br>")
+                ft5.write("System out of service because of PTX platform error <br>")
                 ft5.close()
             except :
                 print("Write Error01")
