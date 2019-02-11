@@ -327,4 +327,4 @@ if __name__ == '__main__' :
                 ft5.close()
             except :
                 print("Write Error01")
-            time.sleep( 1200 )
+            time.sleep( 600 )
