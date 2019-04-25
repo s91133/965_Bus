@@ -270,7 +270,7 @@ if __name__ == '__main__' :
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
                     for item in datalist :
                         if var3 != 0 :
-                            fp.write('\n')
+                            fp.write("\n")
                             ft.write('<br>')
                         if 'PlateNumb' in datalist[item] :
                             fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
