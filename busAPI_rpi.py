@@ -15,6 +15,7 @@ import socket
 
 app_id = 'c2867a08b8f741b9bef1900b2c12c55a'
 app_key = 'ebQiA77NHGeX_pi-HnWxlmuTU1g'
+write_path = "/home/pi/www/"
 
 class Auth():
 
@@ -58,7 +59,7 @@ if __name__ == '__main__' :
     while internet() == False :
         time.sleep(2)
     try :
-        fp = open("./start.txt","r")
+        fp = open( write_path + "./start.txt","r")
         chk = fp.read()
         fp.close()
         if int(chk) == 1 :
@@ -66,7 +67,7 @@ if __name__ == '__main__' :
         else :
             var = 0
     except Exception as e :
-        fp = open( "./error_message.txt", "a")
+        fp = open( write_path + "./error_message.txt", "a")
         fp.write("Program initialization failed !" + "\n\n")
         fp.write("時間 : %s \n\n" % time.ctime())
         fp.close()
@@ -79,7 +80,7 @@ if __name__ == '__main__' :
             if datetime.now().strftime("%H") == "23" and var1 == 0 :
                 timechk = 0
                 print("System Sleep")
-                ft1 = open( "./965_businfo.html", "w")
+                ft1 = open( write_path + "./965_businfo.html", "w")
                 ft1.write("Non-working hours")
                 ft1.close()
                 var1 = 1
@@ -90,7 +91,7 @@ if __name__ == '__main__' :
                 
         except Exception as e :
             timechk = 0
-            fp = open( "./error_message.txt", "a")
+            fp = open( write_path + "./error_message.txt", "a")
             fp.write("Error Code 0, at time reset" + "\n\n")
             fp.write("時間 : %s \n\n" % time.ctime())
             fp.close()
@@ -105,7 +106,7 @@ if __name__ == '__main__' :
             except Exception as e :
                 error_val_r1 = 1
                 var2 += 1
-                fp = open( "./error_message.txt", "a")
+                fp = open( write_path + "./error_message.txt", "a")
                 fp.write("PTX RealTimeByFrequency Error!" + "\n\n")
                 fp.write("時間 : %s \n\n" % time.ctime())
                 fp.close()
@@ -116,7 +117,7 @@ if __name__ == '__main__' :
             except Exception as e :
                 error_val_r2 = 1
                 var2 += 1
-                fp = open( "./error_message.txt", "a")
+                fp = open( write_path + "./error_message.txt", "a")
                 fp.write("PTX RealTimeNearStop Error!" + "\n\n")
                 fp.write("時間 : %s \n\n" % time.ctime())
                 fp.close()
@@ -176,7 +177,7 @@ if __name__ == '__main__' :
                 except Exception as e :
                     error_val = 1
                     write_check = 0
-                    fp = open( "./error_message.txt", "a")
+                    fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 1, at item in decodejson01 : " + str(e) + "\n\n")
                     fp.write("decodejson01 : " + str(decodejson01) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
@@ -241,24 +242,24 @@ if __name__ == '__main__' :
                 except Exception as e :
                     error_val = 1
                     write_check = 0
-                    fp = open( "./error_message.txt", "a")
+                    fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 2, at item in decodejson02 : " + str(e) + "\n\n")
                     fp.write("decodejson02 : " + str(decodejson02) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
 
             if error_val == 0 and write_check == 1 :
-                path = "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
+                path = write_path + "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
                 if not os.path.isdir(path) :
                     os.mkdir(path)
                 try :
                     fp = open( path +  "/" + datetime.now().strftime("%Y%m%d") + "_" + "hour=" + datetime.now().strftime("%H") + ".txt", "a")
-                    ft = open( "./965_businfo.html", "w")
+                    ft = open( write_path + "./965_businfo.html", "w")
 
                 except Exception as e :
                     error_val = 1
                     write_check = 0
-                    fp = open( "./error_message.txt", "a")
+                    fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 3, at open file : " + str(e) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
@@ -296,7 +297,7 @@ if __name__ == '__main__' :
                 except Exception as e :
                     error_val = 1
                     write_check = 0
-                    fp = open( "./error_message.txt", "a")
+                    fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 4, at item in datalist : " + str(e) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
@@ -311,7 +312,7 @@ if __name__ == '__main__' :
 
                 except Exception as e :
                     error_val = 1
-                    fp = open( "./error_message.txt", "a")
+                    fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 5, at write : " + str(e) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
@@ -322,9 +323,9 @@ if __name__ == '__main__' :
                 time.sleep( 60 )
         else :
             try :
-                ft5 = open( "./965_businfo.html", "a")
+                ft5 = open( write_path + "./965_businfo.html", "a")
                 ft5.write("System out of service because of PTX platform error <br>")
                 ft5.close()
             except :
                 print("Write Error01")
-            time.sleep( 1200 )
+            time.sleep( 600 )
