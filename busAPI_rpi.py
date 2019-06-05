@@ -54,10 +54,14 @@ def internet(host="8.8.8.8", port=53, timeout=3):
         print (ex.message)
         return False
 
+def programset():
+    global var
+    global vehiclejson
+    global stajson
+    global bus_list
+    global stalist
+    global buscount
 
-if __name__ == '__main__' :
-    while internet() == False :
-        time.sleep(2)
     try :
         fp = open( write_path + "./start.txt","r")
         chk = fp.read()
@@ -69,12 +73,35 @@ if __name__ == '__main__' :
         fp2 = open(write_path + "./VehicleInfo.txt","r")
         vehiclejson = demjson.decode(fp2.read())
         fp2.close()
+
+        fp = open("./ManageStaInfo.txt","r")
+        stajson = demjson.decode(fp.read())
+        fp.close()
+
+        stalist = []
+        for item in stajson:
+            if item["ManageSta"] not in stalist :
+                stalist.append(item["ManageSta"])
+
+        bus_list = {}
+        buscount = {}
+
+        for i in stalist:
+            bus_list[str(i)] = []
+            buscount[str(i)] = 0
+
     except Exception as e :
         fp = open( write_path + "./error_message.txt", "a")
         fp.write("Program initialization failed !" + "\n\n")
         fp.write("時間 : %s \n\n" % time.ctime())
         fp.close()
         var = 0
+
+
+if __name__ == '__main__' :
+    while internet() == False :
+        time.sleep(2)
+    programset()
     timechk = 1
     var1 = 0
     var2 = 0
@@ -89,6 +116,7 @@ if __name__ == '__main__' :
                 var1 = 1
                 var2 = 0
             if datetime.now().strftime("%H%M") == "0500" :
+                programset()
                 timechk = 1
                 var1 = 0
                 
@@ -141,7 +169,19 @@ if __name__ == '__main__' :
                         for i in vehiclejson :
                             if i["LicensePlate"] == item['PlateNumb'] :
                                 datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
-                                datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']                        
+                                datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']    
+                                if item.get('DutyStatus' , 2) != 2 :
+                                    for items in stalist :
+                                        if items == i['ManageSta'] and (item['PlateNumb'] not in bus_list[str(items)]) :
+                                            buscount[str(items)] += 1
+                                            bus_list[str(items)].append(item['PlateNumb'])
+                                            tmp = bus_list[str(items)][len(bus_list[str(items)])-1]
+                                            j = len(bus_list[str(items)]) - 2
+                                            while j >= 0 and tmp < bus_list[str(items)][j] :
+                                                bus_list[str(items)][j + 1] = bus_list[str(items)][j]
+                                                j = j - 1
+                                            bus_list[str(items)][ j + 1 ] = tmp  
+
                         if item['Direction'] == 0 :
                             datalist[item['PlateNumb']]['Direction'] = '金瓜石'
                         else:
@@ -200,6 +240,12 @@ if __name__ == '__main__' :
                                 if i["LicensePlate"] == item['PlateNumb'] :
                                     datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
                                     datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']
+                                    if item.get('DutyStatus' , 2) != 2 :
+                                        for items in stalist :
+                                            if items == i['ManageSta'] and (item['PlateNumb'] not in bus_list[str(items)]) :
+                                                buscount[str(items)] += 1
+                                                bus_list[str(items)].append(item['PlateNumb'])
+
                             if item['Direction'] == 0 :
                                 datalist[item['PlateNumb']]['Direction'] = '金瓜石'
                             else :
@@ -279,6 +325,27 @@ if __name__ == '__main__' :
                 try :
                     var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
+
+                    fp.write( "======== 965 今日出車 ========\n\n")
+                    ft.write( "======== 965 今日出車 ========<p>")
+                    for i in range(len(stalist)) :
+                        if buscount[str(stalist[i])] != 0 :
+                            value = 0
+                            fp.write( str(stalist[i]) + "站 (" + str(buscount[str(stalist[i])]) + "輛) :" + "\n")
+                            ft.write( str(stalist[i]) + "站 (" + str(buscount[str(stalist[i])]) + "輛) :" + "<br>")
+                            for item in bus_list[str(stalist[i])] :
+                                if value != 0 :
+                                    fp.write( "," )
+                                    ft.write( "," )
+                                fp.write(str(item))
+                                ft.write(str(item))
+                                value += 1
+                            fp.write( "\n\n" )
+                            ft.write( "<p>" )
+
+                    fp.write( "========= 車輛資訊 ==========\n\n")
+                    ft.write( "========= 車輛資訊 ==========<p>")
+
                     for item in datalist :
                         if var3 != 0 :
                             fp.write("\n")
