@@ -74,7 +74,7 @@ def programset():
         vehiclejson = demjson.decode(fp2.read())
         fp2.close()
 
-        fp = open("./ManageStaInfo.txt","r")
+        fp = open(write_path + "./ManageStaInfo.txt","r")
         stajson = demjson.decode(fp.read())
         fp.close()
 
