@@ -66,6 +66,9 @@ if __name__ == '__main__' :
             var = 1
         else :
             var = 0
+        fp2 = open(write_path + "./VehicleInfo.txt","r")
+        vehiclejson = demjson.decode(fp2.read())
+        fp2.close()
     except Exception as e :
         fp = open( write_path + "./error_message.txt", "a")
         fp.write("Program initialization failed !" + "\n\n")
@@ -134,7 +137,11 @@ if __name__ == '__main__' :
                 try :
                     for item in decodejson01 :
                         datalist[item['PlateNumb']] = {}
-                        datalist[item['PlateNumb']]['PlateNumb'] = item['PlateNumb']                          
+                        datalist[item['PlateNumb']]['PlateNumb'] = item['PlateNumb']  
+                        for i in vehiclejson :
+                            if i["LicensePlate"] == item['PlateNumb'] :
+                                datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
+                                datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']                        
                         if item['Direction'] == 0 :
                             datalist[item['PlateNumb']]['Direction'] = '金瓜石'
                         else:
@@ -189,6 +196,10 @@ if __name__ == '__main__' :
                         if item['PlateNumb'] not in datalist :
                             datalist[item['PlateNumb']] = {}
                             datalist[item['PlateNumb']]['PlateNumb'] = item['PlateNumb']
+                            for i in vehiclejson :
+                                if i["LicensePlate"] == item['PlateNumb'] :
+                                    datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
+                                    datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']
                             if item['Direction'] == 0 :
                                 datalist[item['PlateNumb']]['Direction'] = '金瓜石'
                             else :
@@ -275,6 +286,12 @@ if __name__ == '__main__' :
                         if 'PlateNumb' in datalist[item] :
                             fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
                             ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+                        if 'ManageSta' in datalist[item] :
+                            fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
+                            ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+                        if 'VehicleType' in datalist[item] :
+                            fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
+                            ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
                         if 'Direction' in datalist[item] :
                             fp.write('開往: ' + datalist[item]['Direction'] + "\n")
                             ft.write('開往: ' + datalist[item]['Direction'] + '<br>')
