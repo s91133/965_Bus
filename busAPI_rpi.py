@@ -160,6 +160,7 @@ if __name__ == '__main__' :
 
             datalist = {}
             write_check = 0
+            outbound_count = 0
 
             if error_val_r1 == 0 :
                 try :
@@ -184,6 +185,7 @@ if __name__ == '__main__' :
 
                         if item['Direction'] == 0 :
                             datalist[item['PlateNumb']]['Direction'] = '金瓜石'
+                            outbound_count += 1
                         else:
                             datalist[item['PlateNumb']]['Direction'] = '板橋'
                         if item['DutyStatus'] == 0 :
@@ -248,6 +250,7 @@ if __name__ == '__main__' :
 
                             if item['Direction'] == 0 :
                                 datalist[item['PlateNumb']]['Direction'] = '金瓜石'
+                                outbound_count += 1
                             else :
                                 datalist[item['PlateNumb']]['Direction'] = '板橋'
 
@@ -343,41 +346,79 @@ if __name__ == '__main__' :
                             fp.write( "\n\n" )
                             ft.write( "<p>" )
 
-                    fp.write( "========= 車輛資訊 ==========\n\n")
-                    ft.write( "========= 車輛資訊 ==========<p>")
+                    fp.write( "========= 車輛資訊 ==========\n")
+                    ft.write( "========= 車輛資訊 ==========<br>")
+                    fp.write( "======= 去程 往金瓜石 ========\n\n")
+                    ft.write( "======= 去程 往金瓜石 ========<p>")
 
                     for item in datalist :
-                        if var3 != 0 :
-                            fp.write("\n")
-                            ft.write('<br>')
-                        if 'PlateNumb' in datalist[item] :
-                            fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
-                            ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
-                        if 'ManageSta' in datalist[item] :
-                            fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
-                            ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
-                        if 'VehicleType' in datalist[item] :
-                            fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
-                            ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
                         if 'Direction' in datalist[item] :
-                            fp.write('開往: ' + datalist[item]['Direction'] + "\n")
-                            ft.write('開往: ' + datalist[item]['Direction'] + '<br>')
-                        if 'BusStatus' in datalist[item] :
-                            fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
-                            ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
-                        if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
-                            fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
-                            ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
-                        if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
-                            fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
-                            ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
-                        if 'DutyStatus' in datalist[item] :
-                            fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
-                            ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
-                        if 'Speed' in datalist[item] :
-                            fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
-                            ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
-                        var3 = 1
+                            if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
+                                if var3 != 0 :
+                                    fp.write("\n")
+                                    ft.write('<br>')
+                                if 'PlateNumb' in datalist[item] :
+                                    fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
+                                    ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+                                if 'ManageSta' in datalist[item] :
+                                    fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
+                                    ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+                                if 'VehicleType' in datalist[item] :
+                                    fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
+                                    ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
+                                if 'BusStatus' in datalist[item] :
+                                    fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
+                                    ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
+                                if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
+                                    fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
+                                    ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
+                                if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
+                                    fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
+                                    ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
+                                if 'DutyStatus' in datalist[item] :
+                                    fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
+                                    ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
+                                if 'Speed' in datalist[item] :
+                                    fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
+                                    ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+                                var3 = 1
+                                outbound_count -= 1
+
+                    fp.write( "\n======= 返程 往板橋 ========\n\n")
+                    ft.write( "<br>======= 返程 往板橋 ========<p>")
+                    var3 = 0
+                    for item in datalist :
+                        if 'Direction' in datalist[item] :
+                            if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
+                                if var3 != 0 :
+                                    fp.write("\n")
+                                    ft.write('<br>')
+                                if 'PlateNumb' in datalist[item] :
+                                    fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
+                                    ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+                                if 'ManageSta' in datalist[item] :
+                                    fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
+                                    ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+                                if 'VehicleType' in datalist[item] :
+                                    fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
+                                    ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
+                                if 'BusStatus' in datalist[item] :
+                                    fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
+                                    ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
+                                if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
+                                    fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
+                                    ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
+                                if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
+                                    fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
+                                    ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
+                                if 'DutyStatus' in datalist[item] :
+                                    fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
+                                    ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
+                                if 'Speed' in datalist[item] :
+                                    fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
+                                    ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+                                var3 = 1
+
                 except Exception as e :
                     error_val = 1
                     write_check = 0
