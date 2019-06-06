@@ -329,8 +329,8 @@ if __name__ == '__main__' :
                     var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
 
-                    fp.write( "======== 965 今日出車 ========\n\n")
-                    ft.write( "======== 965 今日出車 ========<p>")
+                    fp.write( "======== 965 本日出車 ========\n\n")
+                    ft.write( "======== 965 本日出車 ========<p>")
                     for i in range(len(stalist)) :
                         if buscount[str(stalist[i])] != 0 :
                             value = 0
@@ -346,8 +346,8 @@ if __name__ == '__main__' :
                             fp.write( "\n\n" )
                             ft.write( "<p>" )
 
-                    fp.write( "========= 車輛資訊 ==========\n")
-                    ft.write( "========= 車輛資訊 ==========<br>")
+                    fp.write( "======== 即時車輛動態 =========\n")
+                    ft.write( "======== 即時車輛動態 =========<br>")
                     fp.write( "======= 去程 往金瓜石 ========\n\n")
                     ft.write( "======= 去程 往金瓜石 ========<p>")
 
@@ -430,8 +430,9 @@ if __name__ == '__main__' :
             if error_val == 0 and write_check == 1 :
                 try:
                     var2 = 0
-                    fp.write("\n資料最後更新時間 : %s \n\n" % time.ctime())
-                    ft.write("<br>" + "資料最後更新時間 : %s <br>" % time.ctime())
+                    fp.write("\nUpdated: %s \n\n" % time.ctime())
+                    ft.write("<br>" + "Updated: %s <br>" % time.ctime())
+                    ft.write("資料介接自交通部PTX平臺" )
                     fp.close()
                     ft.close()
 
