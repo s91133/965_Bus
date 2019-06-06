@@ -111,7 +111,7 @@ if __name__ == '__main__' :
                 timechk = 0
                 print("System Sleep")
                 ft1 = open( write_path + "./965_businfo.html", "w")
-                ft1.write("Non-working hours")
+                ft1.write("系統休眠中...下次啟動時間為05:00 a.m.")
                 ft1.close()
                 var1 = 1
                 var2 = 0
