@@ -247,6 +247,12 @@ if __name__ == '__main__' :
                                             if items == i['ManageSta'] and (item['PlateNumb'] not in bus_list[str(items)]) :
                                                 buscount[str(items)] += 1
                                                 bus_list[str(items)].append(item['PlateNumb'])
+                                                tmp = bus_list[str(items)][len(bus_list[str(items)])-1]
+                                                j = len(bus_list[str(items)]) - 2
+                                                while j >= 0 and tmp < bus_list[str(items)][j] :
+                                                    bus_list[str(items)][j + 1] = bus_list[str(items)][j]
+                                                    j = j - 1
+                                                bus_list[str(items)][ j + 1 ] = tmp  
 
                             if item['Direction'] == 0 :
                                 datalist[item['PlateNumb']]['Direction'] = '金瓜石'
