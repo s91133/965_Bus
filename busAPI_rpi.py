@@ -132,7 +132,7 @@ if __name__ == '__main__' :
             error_val_r2 = 0
             a = Auth(app_id, app_key)
             try :
-                response01 = request('get', 'https://ptx.transportdata.tw/MOTC/v2/Bus/RealTimeByFrequency/City/NewTaipei/965?$top=50&$select=PlateNumb&$format=JSON', headers= a.get_auth_header())
+                response01 = request('get', 'https://ptx.transportdata.tw/MOTC/v2/Bus/RealTimeByFrequency/City/NewTaipei/965?$top=50&$format=JSON', headers= a.get_auth_header())
                 decodejson01 =  demjson.decode(response01.content)
             except Exception as e :
                 error_val_r1 = 1
@@ -221,6 +221,7 @@ if __name__ == '__main__' :
                         else :
                             datalist[item['PlateNumb']]['BusStatus'] = '未知'
                         datalist[item['PlateNumb']]['Speed'] = item['Speed']
+                        datalist[item['PlateNumb']]['BusPosition'] = item['BusPosition']
                         write_check = 1
 
                 except Exception as e :
@@ -387,6 +388,9 @@ if __name__ == '__main__' :
                                 if 'Speed' in datalist[item] :
                                     fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
                                     ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+                                if 'BusPosition' in datalist[item] :
+                                    fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
+                                    ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
                                 var3 = 1
                                 outbound_count -= 1
 
@@ -423,6 +427,9 @@ if __name__ == '__main__' :
                                 if 'Speed' in datalist[item] :
                                     fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
                                     ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+                                if 'BusPosition' in datalist[item] :
+                                    fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
+                                    ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
                                 var3 = 1
 
                 except Exception as e :
