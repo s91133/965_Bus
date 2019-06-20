@@ -322,6 +322,7 @@ if __name__ == '__main__' :
                 try :
                     fp = open( path +  "/" + datetime.now().strftime("%Y%m%d") + "_" + "hour=" + datetime.now().strftime("%H") + ".txt", "a")
                     ft = open( write_path + "./965_businfo.html", "w")
+                    ft_html = open( write_path + "./965_json_data.html", "w")
 
                 except Exception as e :
                     error_val = 1
@@ -335,6 +336,9 @@ if __name__ == '__main__' :
                 try :
                     var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
+
+                    ft_html.write( str(datalist) + "<br>")
+                    ft_html.close()
 
                     fp.write( "======== 965 本日出車 ========\n\n")
                     ft.write( "======== 965 本日出車 ========<p>")
