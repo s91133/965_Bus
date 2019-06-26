@@ -58,9 +58,9 @@ def programset():
     global var
     global vehiclejson
     global stajson
-    global bus_list
+    global bus_sta_list
     global stalist
-    global buscount
+    global bus_sta_count
 
     try :
         fp = open( write_path + "./start.txt","r")
@@ -83,12 +83,12 @@ def programset():
             if item["ManageSta"] not in stalist :
                 stalist.append(item["ManageSta"])
 
-        bus_list = {}
-        buscount = {}
+        bus_sta_list = {}
+        bus_sta_count = {}
 
         for i in stalist:
-            bus_list[str(i)] = []
-            buscount[str(i)] = 0
+            bus_sta_list[str(i)] = []
+            bus_sta_count[str(i)] = 0
 
     except Exception as e :
         fp = open( write_path + "./error_message.txt", "a")
@@ -96,6 +96,38 @@ def programset():
         fp.write("時間 : %s \n\n" % time.ctime())
         fp.close()
         var = 0
+
+def informationwrite(datalist,var3) :
+    if var3 != 0 :
+        fp.write("\n")
+        ft.write('<br>')
+    if 'PlateNumb' in datalist[item] :
+        fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
+        ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+    if 'ManageSta' in datalist[item] :
+        fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
+        ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+    if 'VehicleType' in datalist[item] :
+        fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
+        ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
+    if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
+        fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
+        ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
+    if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
+        fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
+        ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
+    if 'BusStatus' in datalist[item] :
+        fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
+        ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
+    if 'DutyStatus' in datalist[item] :
+        fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
+        ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
+    if 'Speed' in datalist[item] :
+        fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
+        ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+    if 'BusPosition' in datalist[item] :
+        fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
+        ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
 
 
 if __name__ == '__main__' :
@@ -159,6 +191,7 @@ if __name__ == '__main__' :
                 error_val = 0
 
             datalist = {}
+            carlist = []
             write_check = 0
             outbound_count = 0
 
@@ -167,21 +200,18 @@ if __name__ == '__main__' :
                     for item in decodejson01 :
                         datalist[item['PlateNumb']] = {}
                         datalist[item['PlateNumb']]['PlateNumb'] = item['PlateNumb']  
+                        carlist.append(item['PlateNumb'])
+                        carlist.sort()
                         for i in vehiclejson :
                             if i["LicensePlate"] == item['PlateNumb'] :
                                 datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
                                 datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']    
                                 if item.get('DutyStatus' , 2) != 2 :
                                     for items in stalist :
-                                        if items == i['ManageSta'] and (item['PlateNumb'] not in bus_list[str(items)]) :
-                                            buscount[str(items)] += 1
-                                            bus_list[str(items)].append(item['PlateNumb'])
-                                            tmp = bus_list[str(items)][len(bus_list[str(items)])-1]
-                                            j = len(bus_list[str(items)]) - 2
-                                            while j >= 0 and tmp < bus_list[str(items)][j] :
-                                                bus_list[str(items)][j + 1] = bus_list[str(items)][j]
-                                                j = j - 1
-                                            bus_list[str(items)][ j + 1 ] = tmp  
+                                        if items == i['ManageSta'] and (item['PlateNumb'] not in bus_sta_list[str(items)]) :
+                                            bus_sta_count[str(items)] += 1
+                                            bus_sta_list[str(items)].append(item['PlateNumb'])
+                                            bus_sta_list[str(items)].sort()
 
                         if item['Direction'] == 0 :
                             datalist[item['PlateNumb']]['Direction'] = '金瓜石'
@@ -239,21 +269,18 @@ if __name__ == '__main__' :
                         if item['PlateNumb'] not in datalist :
                             datalist[item['PlateNumb']] = {}
                             datalist[item['PlateNumb']]['PlateNumb'] = item['PlateNumb']
+                            carlist.append(item['PlateNumb'])
+                            carlist.sort()
                             for i in vehiclejson :
                                 if i["LicensePlate"] == item['PlateNumb'] :
                                     datalist[item['PlateNumb']]['ManageSta'] =i['ManageSta']
                                     datalist[item['PlateNumb']]['VehicleType'] =i['VehicleType']
                                     if item.get('DutyStatus' , 2) != 2 :
                                         for items in stalist :
-                                            if items == i['ManageSta'] and (item['PlateNumb'] not in bus_list[str(items)]) :
-                                                buscount[str(items)] += 1
-                                                bus_list[str(items)].append(item['PlateNumb'])
-                                                tmp = bus_list[str(items)][len(bus_list[str(items)])-1]
-                                                j = len(bus_list[str(items)]) - 2
-                                                while j >= 0 and tmp < bus_list[str(items)][j] :
-                                                    bus_list[str(items)][j + 1] = bus_list[str(items)][j]
-                                                    j = j - 1
-                                                bus_list[str(items)][ j + 1 ] = tmp  
+                                            if items == i['ManageSta'] and (item['PlateNumb'] not in bus_sta_list[str(items)]) :
+                                                bus_sta_count[str(items)] += 1
+                                                bus_sta_list[str(items)].append(item['PlateNumb'])
+                                                bus_sta_list[str(items)].sort()
 
                             if item['Direction'] == 0 :
                                 datalist[item['PlateNumb']]['Direction'] = '金瓜石'
@@ -336,18 +363,17 @@ if __name__ == '__main__' :
                 try :
                     var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
-
                     ft_html.write( str(datalist) + "<br>")
                     ft_html.close()
-
+                    
                     fp.write( "======== 965 本日出車 ========\n\n")
                     ft.write( "======== 965 本日出車 ========<p>")
                     for i in range(len(stalist)) :
-                        if buscount[str(stalist[i])] != 0 :
+                        if bus_sta_count[str(stalist[i])] != 0 :
                             value = 0
-                            fp.write( str(stalist[i]) + "站 (" + str(buscount[str(stalist[i])]) + "輛) :" + "\n")
-                            ft.write( str(stalist[i]) + "站 (" + str(buscount[str(stalist[i])]) + "輛) :" + "<br>")
-                            for item in bus_list[str(stalist[i])] :
+                            fp.write( str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :" + "\n")
+                            ft.write( str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :" + "<br>")
+                            for item in bus_sta_list[str(stalist[i])] :
                                 if value != 0 :
                                     fp.write( "," )
                                     ft.write( "," )
@@ -362,79 +388,25 @@ if __name__ == '__main__' :
                     fp.write( "======= 去程 往金瓜石 ========\n\n")
                     ft.write( "======= 去程 往金瓜石 ========<p>")
 
-                    for item in datalist :
-                        if 'Direction' in datalist[item] :
-                            if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
-                                if var3 != 0 :
-                                    fp.write("\n")
-                                    ft.write('<br>')
-                                if 'PlateNumb' in datalist[item] :
-                                    fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
-                                    ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
-                                if 'ManageSta' in datalist[item] :
-                                    fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
-                                    ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
-                                if 'VehicleType' in datalist[item] :
-                                    fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
-                                    ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
-                                if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
-                                    fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
-                                    ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
-                                if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
-                                    fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
-                                    ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
-                                if 'BusStatus' in datalist[item] :
-                                    fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
-                                    ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
-                                if 'DutyStatus' in datalist[item] :
-                                    fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
-                                    ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
-                                if 'Speed' in datalist[item] :
-                                    fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
-                                    ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
-                                if 'BusPosition' in datalist[item] :
-                                    fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
-                                    ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
-                                var3 = 1
-                                outbound_count -= 1
+                    for items in carlist :
+                        for item in datalist :
+                            if 'Direction' in datalist[item] and item == items:
+                                if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
+                                    informationwrite(datalist,var3)
+                                    var3 = 1
+                                    outbound_count -= 1
+                                    break
 
                     fp.write( "\n======= 返程 往板橋 ========\n\n")
                     ft.write( "<br>======= 返程 往板橋 ========<p>")
                     var3 = 0
-                    for item in datalist :
-                        if 'Direction' in datalist[item] :
-                            if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
-                                if var3 != 0 :
-                                    fp.write("\n")
-                                    ft.write('<br>')
-                                if 'PlateNumb' in datalist[item] :
-                                    fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
-                                    ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
-                                if 'ManageSta' in datalist[item] :
-                                    fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
-                                    ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
-                                if 'VehicleType' in datalist[item] :
-                                    fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
-                                    ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
-                                if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
-                                    fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
-                                    ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
-                                if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
-                                    fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
-                                    ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
-                                if 'BusStatus' in datalist[item] :
-                                    fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
-                                    ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
-                                if 'DutyStatus' in datalist[item] :
-                                    fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
-                                    ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
-                                if 'Speed' in datalist[item] :
-                                    fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
-                                    ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
-                                if 'BusPosition' in datalist[item] :
-                                    fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
-                                    ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
-                                var3 = 1
+                    for items in carlist :
+                        for item in datalist :
+                            if 'Direction' in datalist[item] and item == items:
+                                if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
+                                    informationwrite(datalist,var3)
+                                    var3 = 1
+                                    break
 
                 except Exception as e :
                     error_val = 1
