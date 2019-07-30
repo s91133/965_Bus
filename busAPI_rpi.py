@@ -137,6 +137,7 @@ if __name__ == '__main__' :
     timechk = 1
     var1 = 0
     var2 = 0
+    var4 = 0
     while var == 1 :
         try :
             if datetime.now().strftime("%H") == "23" and var1 == 0 :
@@ -147,6 +148,7 @@ if __name__ == '__main__' :
                 ft1.close()
                 var1 = 1
                 var2 = 0
+                var4 = 0
             if datetime.now().strftime("%H%M") == "0500" :
                 programset()
                 timechk = 1
@@ -253,10 +255,12 @@ if __name__ == '__main__' :
                         datalist[item['PlateNumb']]['Speed'] = item['Speed']
                         datalist[item['PlateNumb']]['BusPosition'] = item['BusPosition']
                         write_check = 1
+                        var4 = 1
 
                 except Exception as e :
                     error_val = 1
                     write_check = 0
+                    var4 = 0
                     fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 1, at item in decodejson01 : " + str(e) + "\n\n")
                     fp.write("decodejson01 : " + str(decodejson01) + "\n\n")
@@ -332,17 +336,19 @@ if __name__ == '__main__' :
                         else :
                             datalist[item['PlateNumb']]['A2EventType'] = '進站'
                         write_check = 1
+                        var4 = 1
 
                 except Exception as e :
                     error_val = 1
                     write_check = 0
+                    var4 = 0
                     fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 2, at item in decodejson02 : " + str(e) + "\n\n")
                     fp.write("decodejson02 : " + str(decodejson02) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
 
-            if error_val == 0 and write_check == 1 :
+            if error_val == 0 and var4 == 1 :
                 path = write_path + "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
                 if not os.path.isdir(path) :
                     os.mkdir(path)
@@ -354,12 +360,13 @@ if __name__ == '__main__' :
                 except Exception as e :
                     error_val = 1
                     write_check = 0
+                    var4 = 0
                     fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 3, at open file : " + str(e) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
                     
-            if error_val == 0 and write_check == 1 :
+            if error_val == 0 and var4 == 1 :
                 try :
                     var3 = 0
                     ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
@@ -383,40 +390,42 @@ if __name__ == '__main__' :
                             fp.write( "\n\n" )
                             ft.write( "<p>" )
 
-                    fp.write( "======== 即時車輛動態 =========\n")
-                    ft.write( "======== 即時車輛動態 =========<br>")
-                    fp.write( "======= 去程 往金瓜石 ========\n\n")
-                    ft.write( "======= 去程 往金瓜石 ========<p>")
+                    if write_check == 1 :
+                        fp.write( "======= 即時車輛動態 ========\n")
+                        ft.write( "======= 即時車輛動態 ========<br>")
+                        fp.write( "======= 去程 往金瓜石 ========\n\n")
+                        ft.write( "======= 去程 往金瓜石 ========<p>")
 
-                    for items in carlist :
-                        for item in datalist :
-                            if 'Direction' in datalist[item] and item == items:
-                                if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
-                                    informationwrite(datalist,var3)
-                                    var3 = 1
-                                    outbound_count -= 1
-                                    break
+                        for items in carlist :
+                            for item in datalist :
+                                if 'Direction' in datalist[item] and item == items:
+                                    if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
+                                        informationwrite(datalist,var3)
+                                        var3 = 1
+                                        outbound_count -= 1
+                                        break
 
-                    fp.write( "\n======= 返程 往板橋 ========\n\n")
-                    ft.write( "<br>======= 返程 往板橋 ========<p>")
-                    var3 = 0
-                    for items in carlist :
-                        for item in datalist :
-                            if 'Direction' in datalist[item] and item == items:
-                                if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
-                                    informationwrite(datalist,var3)
-                                    var3 = 1
-                                    break
+                        fp.write( "\n======= 返程 往板橋 ========\n\n")
+                        ft.write( "<br>======= 返程 往板橋 ========<p>")
+                        var3 = 0
+                        for items in carlist :
+                            for item in datalist :
+                                if 'Direction' in datalist[item] and item == items:
+                                    if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
+                                        informationwrite(datalist,var3)
+                                        var3 = 1
+                                        break
 
                 except Exception as e :
                     error_val = 1
                     write_check = 0
+                    var4 = 0
                     fp = open( write_path + "./error_message.txt", "a")
                     fp.write("Error Code 4, at item in datalist : " + str(e) + "\n\n")
                     fp.write("時間 : %s \n\n" % time.ctime())
                     fp.close()
 
-            if error_val == 0 and write_check == 1 :
+            if error_val == 0 and var4 == 1:
                 try:
                     var2 = 0
                     fp.write("\nUpdated: %s \n\n" % time.ctime())
