@@ -13,9 +13,18 @@ import time
 from datetime import datetime
 import socket
 
-app_id = 'c2867a08b8f741b9bef1900b2c12c55a'
-app_key = 'ebQiA77NHGeX_pi-HnWxlmuTU1g'
-write_path = "/home/pi/www/"
+global writeHtmlList
+global writeTxtList
+boot_controller = None
+vehiclejson = None
+stajson = None
+bus_sta_list = None
+stalist = None
+bus_sta_count = None
+
+app_id = 'c2867a08b8f741b9bef1900b2c12c55a' #tuple('c2867a08b8f741b9bef1900b2c12c55a')
+app_key = 'ebQiA77NHGeX_pi-HnWxlmuTU1g' #tuple('ebQiA77NHGeX_pi-HnWxlmuTU1g')
+write_path = "" #tuple("/home/pi/www/")
 
 class Auth():
 
@@ -41,11 +50,9 @@ class Auth():
 
 
 def internet(host="8.8.8.8", port=53, timeout=3):
-      """
-      Host: 8.8.8.8 (google-public-dns-a.google.com)
-      OpenPort: 53/tcp
-      Service: domain (DNS/TCP)
-      """
+    #   Host: 8.8.8.8 (google-public-dns-a.google.com)
+    #   OpenPort: 53/tcp
+    #   Service: domain (DNS/TCP)
       try:
         socket.setdefaulttimeout(timeout)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
@@ -54,8 +61,28 @@ def internet(host="8.8.8.8", port=53, timeout=3):
         print (ex.message)
         return False
 
+import demjson
+def read_text_file(file_path,json_flag=False):
+    file_ = open(file_path,'r')
+    if json_flag == True:
+        tmp_ = demjson.decode(file_.read())
+    else:
+        tmp_ = file_.read()
+    file_.close()
+    return tmp_
+
+def write_text_file(file_path,write_data):
+    file_ = open(file_path,'a')
+    file_.write(write_data)
+    file_.close()
+
+def write_html_file(file_path,write_data,write_type='w'):
+    file_ = open(file_path,write_type)
+    file_.write(write_data)
+    file_.close()
+
 def programset():
-    global var
+    global boot_controller
     global vehiclejson
     global stajson
     global bus_sta_list
@@ -63,20 +90,12 @@ def programset():
     global bus_sta_count
 
     try :
-        fp = open( write_path + "./start.txt","r")
-        chk = fp.read()
-        fp.close()
-        if int(chk) == 1 :
-            var = 1
+        if int(read_text_file(write_path + "./start.txt")) == 1 :
+            boot_controller = 1
         else :
-            var = 0
-        fp2 = open(write_path + "./VehicleInfo.txt","r")
-        vehiclejson = demjson.decode(fp2.read())
-        fp2.close()
-
-        fp = open(write_path + "./ManageStaInfo.txt","r")
-        stajson = demjson.decode(fp.read())
-        fp.close()
+            boot_controller = 0
+        vehiclejson = read_text_file(write_path + "./VehicleInfo.txt",json_flag = True)
+        stajson = read_text_file(write_path + "./ManageStaInfo.txt",json_flag = True)
 
         stalist = []
         for item in stajson:
@@ -91,113 +110,116 @@ def programset():
             bus_sta_count[str(i)] = 0
 
     except Exception as e :
-        fp = open( write_path + "./error_message.txt", "a")
-        fp.write("Program initialization failed !" + "\n\n")
-        fp.write("時間 : %s \n\n" % time.ctime())
-        fp.close()
-        var = 0
+        writeList = []
+        writeList.append("Program initialization failed !")
+        writeList.append("時間 : {0} ".format(time.ctime()))
+        writeStr = '\n\n'.join(writeList)
+        write_text_file(write_path + "./VehicleInfo.txt",writeStr)
+        boot_controller = 0
 
-def informationwrite(datalist,var3) :
-    if var3 != 0 :
-        fp.write("\n")
-        ft.write('<br>')
+def informationwrite(datalist):
     if 'PlateNumb' in datalist[item] :
-        fp.write('車號: ' + datalist[item]['PlateNumb'] + "\n")
-        ft.write('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+        writeHtmlList.append('車號: ' + datalist[item]['PlateNumb'] + '<br>')
+        writeTxtList.append('車號: ' + datalist[item]['PlateNumb'] + "\n")
     if 'ManageSta' in datalist[item] :
-        fp.write('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
-        ft.write('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+        writeHtmlList.append('車輛所屬站: ' + datalist[item]['ManageSta'] + '站<br>')
+        writeTxtList.append('車輛所屬站: ' + datalist[item]['ManageSta'] + "站\n")
     if 'VehicleType' in datalist[item] :
-        fp.write('車班類型: ' + datalist[item]['VehicleType'] + "車\n")
-        ft.write('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
+        writeHtmlList.append('車班類型: ' + datalist[item]['VehicleType'] + "車<br>")
+        writeTxtList.append('車班類型: ' + datalist[item]['VehicleType'] + "車\n")        
     if 'StopName' in datalist[item] and 'PlateNumb' in datalist[item] :
-        fp.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
-        ft.write('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
+        writeHtmlList.append('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + '<br>')
+        writeTxtList.append('停靠站: ' + datalist[item]['StopName']['Zh_tw'] + "\n")
     if 'A2EventType' in datalist[item] and 'PlateNumb' in datalist[item] :
-        fp.write('進站離站: ' + datalist[item]['A2EventType'] + "\n")
-        ft.write('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
+        writeHtmlList.append('進站離站: ' + datalist[item]['A2EventType'] + '<br>')
+        writeTxtList.append('進站離站: ' + datalist[item]['A2EventType'] + "\n")
     if 'BusStatus' in datalist[item] :
-        fp.write('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
-        ft.write('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
+        writeHtmlList.append('行車狀況: ' + datalist[item]['BusStatus'] + '<br>')
+        writeTxtList.append('行車狀況: ' + datalist[item]['BusStatus'] + "\n")
     if 'DutyStatus' in datalist[item] :
-        fp.write('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
-        ft.write('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
+        writeHtmlList.append('勤務狀態: ' + datalist[item]['DutyStatus'] + '<br>')
+        writeTxtList.append('勤務狀態: ' + datalist[item]['DutyStatus'] + "\n")
     if 'Speed' in datalist[item] :
-        fp.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
-        ft.write('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+        writeHtmlList.append('車速: ' + str(datalist[item]['Speed'])  + 'kph' + '<br>')
+        writeTxtList.append('車速: ' + str(datalist[item]['Speed'])  + 'kph' + "\n")
     if 'BusPosition' in datalist[item] :
-        fp.write('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n')
-        ft.write('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<br>")
+        writeHtmlList.append('車輛位置: <a href="http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'">點我</a>' + "<p>")
+        writeTxtList.append('車輛位置: http://maps.google.com/?q=' + str(datalist[item]['BusPosition']['PositionLat']) + ',' + str(datalist[item]['BusPosition']['PositionLon']) +'\n\n')
 
 
 if __name__ == '__main__' :
     while internet() == False :
         time.sleep(2)
     programset()
-    timechk = 1
-    var1 = 0
-    var2 = 0
-    var4 = 0
-    while var == 1 :
+    system_sleep_flag = 1
+    show_system_sleep_info_flag = 0
+    system_error_counter = 0
+    vehicle_quantity_data_exist_flag = 0
+    while boot_controller == 1 :
         try :
-            if datetime.now().strftime("%H") == "23" and var1 == 0 :
-                timechk = 0
-                print("System Sleep")
-                ft1 = open( write_path + "./965_businfo.html", "w")
-                ft1.write("系統休眠中...下次啟動時間為05:00 a.m.")
-                ft1.close()
-                var1 = 1
-                var2 = 0
-                var4 = 0
+            if datetime.now().strftime("%H") == "23" and show_system_sleep_info_flag == 0 :
+                system_sleep_flag = 0
+                write_html_file(write_path + "./965_businfo.html","系統休眠中...下次啟動時間為05:00 a.m.")
+                show_system_sleep_info_flag = 1
+                system_error_counter = 0
+                vehicle_quantity_data_exist_flag = 0
             if datetime.now().strftime("%H%M") == "0500" :
                 programset()
-                timechk = 1
-                var1 = 0
+                system_sleep_flag = 1
+                show_system_sleep_info_flag = 0
                 
         except Exception as e :
-            timechk = 0
-            fp = open( write_path + "./error_message.txt", "a")
-            fp.write("Error Code 0, at time reset" + "\n\n")
-            fp.write("時間 : %s \n\n" % time.ctime())
-            fp.close()
+            system_sleep_flag = 0
+            writeList = []
+            writeList.append("Error Code 0, at time reset")
+            writeList.append("時間 : {0} ".format(time.ctime()))
+            writeStr = '\n\n'.join(writeList)
+            write_text_file(write_path + "./error_message.txt",writeStr)
 
-        if timechk == 1:
-            error_val_r1 = 0
-            error_val_r2 = 0
+            # fp = open( write_path + "./error_message.txt", "a")
+            # fp.write("Error Code 0, at time reset" + "\n\n")
+            # fp.write("時間 : %s \n\n" % time.ctime())
+            # fp.close()
+
+        if system_sleep_flag == 1:
+            system_error_flag_r1 = 0
+            system_error_flag_r2 = 0
             a = Auth(app_id, app_key)
             try :
                 response01 = request('get', 'https://ptx.transportdata.tw/MOTC/v2/Bus/RealTimeByFrequency/City/NewTaipei/965?$top=50&$format=JSON', headers= a.get_auth_header())
                 decodejson01 =  demjson.decode(response01.content)
             except Exception as e :
-                error_val_r1 = 1
-                var2 += 1
-                fp = open( write_path + "./error_message.txt", "a")
-                fp.write("PTX RealTimeByFrequency Error!" + "\n\n")
-                fp.write("時間 : %s \n\n" % time.ctime())
-                fp.close()
+                system_error_flag_r1 = 1
+                system_error_counter += 1
+                writeList = []
+                writeList.append("PTX RealTimeByFrequency Error!")
+                writeList.append("時間 : {0} ".format(time.ctime()))
+                writeStr = '\n\n'.join(writeList)
+                write_text_file(write_path + "./error_message.txt",writeStr)
             
             try :
                 response02 = request('get', 'https://ptx.transportdata.tw/MOTC/v2/Bus/RealTimeNearStop/City/NewTaipei/965?$top=50&$format=JSON', headers= a.get_auth_header())
                 decodejson02 =  demjson.decode(response02.content)
             except Exception as e :
-                error_val_r2 = 1
-                var2 += 1
-                fp = open( write_path + "./error_message.txt", "a")
-                fp.write("PTX RealTimeNearStop Error!" + "\n\n")
-                fp.write("時間 : %s \n\n" % time.ctime())
-                fp.close()
+                system_error_flag_r2 = 1
+                system_error_counter += 1
+                writeList = []
+                writeList.append("PTX RealTimeNearStop Error!")
+                writeList.append("時間 : {0} ".format(time.ctime()))
+                writeStr = '\n\n'.join(writeList)
+                write_text_file(write_path + "./error_message.txt",writeStr)
 
-            if error_val_r1 == 1 and error_val_r2 == 1 :
-                error_val = 1
+            if system_error_flag_r1 == 1 and system_error_flag_r2 == 1 :
+                system_error_flag = 1
             else :
-                error_val = 0
+                system_error_flag = 0
 
             datalist = {}
             carlist = []
-            write_check = 0
+            obtain_PTX_data_flag = 0
             outbound_count = 0
 
-            if error_val_r1 == 0 :
+            if system_error_flag_r1 == 0 :
                 try :
                     for item in decodejson01 :
                         datalist[item['PlateNumb']] = {}
@@ -254,20 +276,21 @@ if __name__ == '__main__' :
                             datalist[item['PlateNumb']]['BusStatus'] = '未知'
                         datalist[item['PlateNumb']]['Speed'] = item['Speed']
                         datalist[item['PlateNumb']]['BusPosition'] = item['BusPosition']
-                        write_check = 1
-                        var4 = 1
+                        obtain_PTX_data_flag = 1
+                        vehicle_quantity_data_exist_flag = 1
 
                 except Exception as e :
-                    error_val = 1
-                    write_check = 0
-                    var4 = 0
-                    fp = open( write_path + "./error_message.txt", "a")
-                    fp.write("Error Code 1, at item in decodejson01 : " + str(e) + "\n\n")
-                    fp.write("decodejson01 : " + str(decodejson01) + "\n\n")
-                    fp.write("時間 : %s \n\n" % time.ctime())
-                    fp.close()
+                    system_error_flag = 1
+                    obtain_PTX_data_flag = 0
+                    vehicle_quantity_data_exist_flag = 0
+                    writeList = []
+                    writeList.append("Error Code 1, at item in decodejson01 : " + str(e))
+                    writeList.append("decodejson01 : " + str(decodejson01))
+                    writeList.append("時間 : {0} ".format(time.ctime()))
+                    writeStr = '\n\n'.join(writeList)
+                    write_text_file(write_path + "./error_message.txt",writeStr)
     
-            if error_val_r2 == 0 :
+            if system_error_flag_r2 == 0 :
                 try:
                     for item in decodejson02 :
                         if item['PlateNumb'] not in datalist :
@@ -335,20 +358,21 @@ if __name__ == '__main__' :
                             datalist[item['PlateNumb']]['A2EventType'] = '離站'
                         else :
                             datalist[item['PlateNumb']]['A2EventType'] = '進站'
-                        write_check = 1
-                        var4 = 1
+                        obtain_PTX_data_flag = 1
+                        vehicle_quantity_data_exist_flag = 1
 
                 except Exception as e :
-                    error_val = 1
-                    write_check = 0
-                    var4 = 0
-                    fp = open( write_path + "./error_message.txt", "a")
-                    fp.write("Error Code 2, at item in decodejson02 : " + str(e) + "\n\n")
-                    fp.write("decodejson02 : " + str(decodejson02) + "\n\n")
-                    fp.write("時間 : %s \n\n" % time.ctime())
-                    fp.close()
+                    system_error_flag = 1
+                    obtain_PTX_data_flag = 0
+                    vehicle_quantity_data_exist_flag = 0
+                    writeList = []
+                    writeList.append("Error Code 2, at item in decodejson02 : " + str(e))
+                    writeList.append("decodejson02 : " + str(decodejson02))
+                    writeList.append("時間 : {0} ".format(time.ctime()))
+                    writeStr = '\n\n'.join(writeList)
+                    write_text_file(write_path + "./error_message.txt",writeStr)
 
-            if error_val == 0 and var4 == 1 :
+            """ if system_error_flag == 0 and vehicle_quantity_data_exist_flag == 1 :
                 path = write_path + "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
                 if not os.path.isdir(path) :
                     os.mkdir(path)
@@ -358,98 +382,101 @@ if __name__ == '__main__' :
                     ft_html = open( write_path + "./965_json_data.html", "w")
 
                 except Exception as e :
-                    error_val = 1
-                    write_check = 0
-                    var4 = 0
-                    fp = open( write_path + "./error_message.txt", "a")
-                    fp.write("Error Code 3, at open file : " + str(e) + "\n\n")
-                    fp.write("時間 : %s \n\n" % time.ctime())
-                    fp.close()
+                    system_error_flag = 1
+                    obtain_PTX_data_flag = 0
+                    vehicle_quantity_data_exist_flag = 0
+                    writeList = []
+                    writeList.append("Error Code 3, at open file : " + str(e))
+                    writeList.append("時間 : {0} ".format(time.ctime()))
+                    writeStr = '\n\n'.join(writeList)
+                    write_text_file(write_path + "./error_message.txt",writeStr) """
                     
-            if error_val == 0 and var4 == 1 :
+            if system_error_flag == 0 and vehicle_quantity_data_exist_flag == 1 :
                 try :
-                    var3 = 0
-                    ft.write( '<head><meta http-equiv="refresh" content="5" /><head>' )
-                    ft_html.write( str(datalist) + "<br>")
-                    ft_html.close()
-                    
-                    fp.write( "======== 965 本日出車 ========\n\n")
-                    ft.write( "======== 965 本日出車 ========<p>")
+                    writeHtmlList = []
+                    writeTxtList = []
+                    writeHtmlList.append('<head><meta http-equiv="refresh" content="5" /><head>')                                  
+                    writeHtmlList.append("======== 965 本日出車 ========<p>")
+                    writeTxtList.append("======== 965 本日出車 ========\n\n")
                     for i in range(len(stalist)) :
                         if bus_sta_count[str(stalist[i])] != 0 :
                             value = 0
-                            fp.write( str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :" + "\n")
-                            ft.write( str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :" + "<br>")
+                            writeHtmlList.append(str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :<br>")
+                            writeTxtList.append(str(stalist[i]) + "站 (" + str(bus_sta_count[str(stalist[i])]) + "輛) :\n")
                             for item in bus_sta_list[str(stalist[i])] :
                                 if value != 0 :
-                                    fp.write( "," )
-                                    ft.write( "," )
-                                fp.write(str(item))
-                                ft.write(str(item))
+                                    writeHtmlList.append(",")
+                                    writeTxtList.append(",")
+                                writeHtmlList.append(str(item))
+                                writeTxtList.append(str(item))
                                 value += 1
-                            fp.write( "\n\n" )
-                            ft.write( "<p>" )
+                            writeHtmlList.append("<p>")
+                            writeTxtList.append("\n\n")
 
-                    if write_check == 1 :
-                        fp.write( "======= 即時車輛動態 ========\n")
-                        ft.write( "======= 即時車輛動態 ========<br>")
-                        fp.write( "======= 去程 往金瓜石 ========\n\n")
-                        ft.write( "======= 去程 往金瓜石 ========<p>")
+
+                    if obtain_PTX_data_flag == 1 :
+                        writeHtmlList.append("======= 即時車輛動態 ========<br>")
+                        writeTxtList.append("======= 即時車輛動態 ========\n")
+                        writeHtmlList.append("======= 去程 往金瓜石 ========<p>")
+                        writeTxtList.append("======= 去程 往金瓜石 ========\n\n")
 
                         for items in carlist :
                             for item in datalist :
                                 if 'Direction' in datalist[item] and item == items:
                                     if datalist[item]['Direction'] == '金瓜石' and outbound_count != 0:
-                                        informationwrite(datalist,var3)
-                                        var3 = 1
+                                        informationwrite(datalist)
                                         outbound_count -= 1
                                         break
 
-                        fp.write( "\n======= 返程 往板橋 ========\n\n")
-                        ft.write( "<br>======= 返程 往板橋 ========<p>")
-                        var3 = 0
+                        writeHtmlList.append("======= 返程 往板橋 ========<p>")
+                        writeTxtList.append("======= 返程 往板橋 ========\n\n")
                         for items in carlist :
                             for item in datalist :
                                 if 'Direction' in datalist[item] and item == items:
                                     if datalist[item]['Direction'] == '板橋' and outbound_count == 0 :
-                                        informationwrite(datalist,var3)
-                                        var3 = 1
+                                        informationwrite(datalist)
                                         break
 
                 except Exception as e :
-                    error_val = 1
-                    write_check = 0
-                    var4 = 0
-                    fp = open( write_path + "./error_message.txt", "a")
-                    fp.write("Error Code 4, at item in datalist : " + str(e) + "\n\n")
-                    fp.write("時間 : %s \n\n" % time.ctime())
-                    fp.close()
+                    system_error_flag = 1
+                    obtain_PTX_data_flag_flag = 0
+                    vehicle_quantity_data_exist_flag = 0
+                    writeList = []
+                    writeList.append("Error Code 4, at item in datalist : " + str(e))
+                    writeList.append("時間 : {0} ".format(time.ctime()))
+                    writeStr = '\n\n'.join(writeList)
+                    write_text_file(write_path + "./error_message.txt",writeStr)
 
-            if error_val == 0 and var4 == 1:
+            if system_error_flag == 0 and vehicle_quantity_data_exist_flag == 1:
                 try:
-                    var2 = 0
-                    fp.write("\nUpdated: %s \n\n" % time.ctime())
-                    ft.write("<br>" + "Updated: %s <br>" % time.ctime())
-                    ft.write("資料介接自交通部PTX平臺" )
-                    fp.close()
-                    ft.close()
+                    system_error_counter = 0
+                    writeHtmlList.append("Updated: {0} <br>".format(time.ctime()))
+                    writeHtmlList.append("資料介接自交通部PTX平臺")
+                    writeTxtList.append("Updated: 時間 : {0} \n\n".format(time.ctime()))
+                    path = write_path + "./businfo_965/"  + datetime.now().strftime("%Y%m%d")
+                    if not os.path.isdir(path) :
+                        os.mkdir(path)
+                    writeHtmlStr = ''.join(writeHtmlList)
+                    writeTxtStr = ''.join(writeTxtList)
+                    write_html_file(write_path + "./965_businfo.html",writeHtmlStr)
+                    write_text_file(path +  "/" + datetime.now().strftime("%Y%m%d") + "_hour=" + datetime.now().strftime("%H") + ".txt",writeTxtStr)
 
                 except Exception as e :
-                    error_val = 1
-                    fp = open( write_path + "./error_message.txt", "a")
-                    fp.write("Error Code 5, at write : " + str(e) + "\n\n")
-                    fp.write("時間 : %s \n\n" % time.ctime())
-                    fp.close()
-        if var2 < 10 :
+                    system_error_flag = 1
+                    writeList = []
+                    writeList.append("Error Code 5, at write : " + str(e))
+                    writeList.append("時間 : {0} ".format(time.ctime()))
+                    writeStr = '\n\n'.join(writeList)
+                    write_text_file(write_path + "./error_message.txt",writeStr)
+
+        if system_error_counter < 10 :
             try :
                 time.sleep( 60 - int(datetime.now().strftime("%S")))
             except :
                 time.sleep( 60 )
         else :
             try :
-                ft5 = open( write_path + "./965_businfo.html", "a")
-                ft5.write("System out of service because of PTX platform error <br>")
-                ft5.close()
+                write_html_file(write_path + "./965_businfo.html","System out of service because of PTX platform error",write_type = 'a')
             except :
                 print("Write Error01")
             time.sleep( 600 )
